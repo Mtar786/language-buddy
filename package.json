@@ -1,0 +1,23 @@
+{
+  "name": "language-buddy",
+  "version": "1.0.0",
+  "description": "A real-time language conversation assistant built with Node.js and Socket.IO.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "real-time",
+    "chat",
+    "translation",
+    "socket.io",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.2"
+  }
+}

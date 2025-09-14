@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Language Buddy</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>Language Buddy</h1>
+        <p class="subtitle">Real‑time multilingual chat</p>
+      </header>
+      <div id="chat-container">
+        <ul id="messages"></ul>
+      </div>
+      <form id="message-form" autocomplete="off">
+        <input id="message-input" autocomplete="off" placeholder="Type your message…" required />
+        <button>Send</button>
+      </form>
+    </div>
+
+    <!-- Socket.IO client script will be served by the server -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      (function () {
+        const socket = io();
+        const messages = document.getElementById('messages');
+        const form = document.getElementById('message-form');
+        const input = document.getElementById('message-input');
+
+        // Ask the user for their language preferences
+        let fromLang = prompt('Enter your language code (e.g. en, es, fr):', 'en');
+        if (!fromLang) fromLang = 'en';
+        let toLang = prompt('Enter the language code to translate messages into:', 'es');
+        if (!toLang) toLang = 'es';
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          if (input.value.trim().length === 0) {
+            return;
+          }
+          // Emit the chat message with language metadata
+          socket.emit('chat message', {
+            text: input.value,
+            from: fromLang,
+            to: toLang,
+          });
+          input.value = '';
+        });
+
+        // Listen for incoming messages
+        socket.on('chat message', function (msg) {
+          const li = document.createElement('li');
+          li.innerHTML =
+            '<span class="original">[' +
+            msg.fromLang +
+            ' → ' +
+            msg.toLang +
+            '] ' +
+            msg.original +
+            '</span><br><span class="translated">' +
+            msg.translated +
+            '</span>';
+          messages.appendChild(li);
+          messages.scrollTop = messages.scrollHeight;
+        });
+
+        // Handle errors
+        socket.on('chat error', function (err) {
+          const li = document.createElement('li');
+          li.classList.add('error');
+          li.textContent = err.error;
+          messages.appendChild(li);
+          messages.scrollTop = messages.scrollHeight;
+        });
+      })();
+    </script>
+  </body>
+</html>
